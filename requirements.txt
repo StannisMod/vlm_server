@@ -1,0 +1,9 @@
+unsloth==2024.12.11
+unsloth-zoo==2024.12.6
+pandas
+pillow
+datasets
+fastapi
+openai
+pydantic
+uvicorn
