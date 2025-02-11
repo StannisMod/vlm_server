@@ -88,7 +88,7 @@ def to_image(base64_str: str):
 
 
 if __name__ == "__main__":
-    executor = ProcessPoolExecutor(max_workers=1, initializer=init_f)
+    executor = ProcessPoolExecutor(max_workers=4, initializer=init_f)
 
 
 @app.post("/v1/chat/completions")
