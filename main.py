@@ -35,6 +35,7 @@ def init_f():
         model_path,
         use_gradient_checkpointing="unsloth"
     )
+    FastVisionModel.for_inference(g_trained_model)
 
 
 def generate_answer(image, instruction, model, tokenizer, max_new_tokens=1024, temperature=1.5, min_p=0.1):
