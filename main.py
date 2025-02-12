@@ -31,10 +31,20 @@ g_trained_tokenizer = None
 g_device = None
 
 
-def init_f(i: int, cuda_devices: list[int]):
+def init_f(i: int,
+           cuda_devices: list[int],
+           workers_per_gpu: int,
+           max_new_tokens: int,
+           temperature: float,
+           min_p: float):
     global g_trained_model, g_trained_tokenizer, g_device
+    global g_max_new_tokens, g_temperature, g_min_p
 
-    device_index = i // g_workers_per_gpu
+    g_max_new_tokens = max_new_tokens
+    g_temperature = temperature
+    g_min_p = min_p
+
+    device_index = i // workers_per_gpu
     g_device = f'cuda:{cuda_devices[device_index]}'
 
     model_path = "/model"
@@ -120,15 +130,16 @@ def main(cuda_devices: str | None,
          max_new_tokens: str | None,
          temperature: str | None,
          min_p: str | None):
-    global g_cuda_devices, g_max_new_tokens, g_temperature, g_min_p, g_workers_per_gpu, g_executor
+    global g_executor
 
-    g_cuda_devices = cuda_devices.split(',')
-    g_workers_per_gpu = int(workers_per_gpu)
-    g_max_new_tokens = int(max_new_tokens)
-    g_temperature = float(temperature)
-    g_min_p = float(min_p)
+    cuda_devices = cuda_devices.split(',')
+    workers_per_gpu = int(workers_per_gpu)
+    max_new_tokens = int(max_new_tokens)
+    temperature = float(temperature)
+    min_p = float(min_p)
 
-    g_executor = ProcessPoolExecutor(max_workers=len(g_cuda_devices) * g_workers_per_gpu, initializer=init_f)
+    g_executor = ProcessPoolExecutor(max_workers=len(g_cuda_devices) * workers_per_gpu, initializer=init_f,
+                                     initargs=(cuda_devices, max_new_tokens, temperature, min_p))
 
     import uvicorn
 
