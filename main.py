@@ -16,8 +16,8 @@ from concurrent.futures import ProcessPoolExecutor
 from PIL import Image
 from fastapi import FastAPI
 from pydantic import BaseModel
+
 from transformers import TextStreamer
-from unsloth import FastVisionModel
 
 import asyncio
 
@@ -51,6 +51,8 @@ def init_f(i: int,
     g_device = f'cuda:{cuda_devices[device_index]}'
 
     os.environ['CUDA_VISIBLE_DEVICES'] = f'{device_index}' #  ','.join(list(map(str, range(torch.cuda.device_count()))))
+
+    from unsloth import FastVisionModel
 
     model_path = "/model"
     g_trained_model, g_trained_tokenizer = FastVisionModel.from_pretrained(
