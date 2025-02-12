@@ -62,7 +62,8 @@ def init_f(i: int,
     model_path = "/model"
     g_trained_model, g_trained_tokenizer = FastVisionModel.from_pretrained(
         model_path,
-        use_gradient_checkpointing="unsloth"
+        use_gradient_checkpointing="unsloth",
+        device_map=g_device
     )
     g_trained_model = g_trained_model.to(g_device)
     FastVisionModel.for_inference(g_trained_model)
