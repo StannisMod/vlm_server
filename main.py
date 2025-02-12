@@ -40,9 +40,9 @@ def init_f(i: int, cuda_devices: list[int]):
     model_path = "/model"
     g_trained_model, g_trained_tokenizer = FastVisionModel.from_pretrained(
         model_path,
-        use_gradient_checkpointing="unsloth",
-        device_map=g_device
+        use_gradient_checkpointing="unsloth"
     )
+    g_trained_model = g_trained_model.to(g_device)
     FastVisionModel.for_inference(g_trained_model)
 
 
