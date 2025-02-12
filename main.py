@@ -49,9 +49,8 @@ def init_f(i: int,
 
     device_index = i // workers_per_gpu
     g_device = f'cuda:{cuda_devices[device_index]}'
-    # print(g_device)
 
-    os.environ['CUDA_VISIBLE_DEVICES'] = ','.join(list(map(str, range(torch.cuda.device_count()))))
+    os.environ['CUDA_VISIBLE_DEVICES'] = f'{device_index}' #  ','.join(list(map(str, range(torch.cuda.device_count()))))
 
     model_path = "/model"
     g_trained_model, g_trained_tokenizer = FastVisionModel.from_pretrained(
