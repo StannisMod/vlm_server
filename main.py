@@ -48,11 +48,13 @@ def init_f(i: int,
 
     device_index = i // workers_per_gpu
     g_device = f'cuda:{cuda_devices[device_index]}'
+    print(g_device)
 
     model_path = "/model"
     g_trained_model, g_trained_tokenizer = FastVisionModel.from_pretrained(
         model_path,
-        use_gradient_checkpointing="unsloth"
+        use_gradient_checkpointing="unsloth",
+        device_map=g_device
     )
     g_trained_model = g_trained_model.to(g_device)
     FastVisionModel.for_inference(g_trained_model)
@@ -133,6 +135,8 @@ def main(cuda_devices: str | None,
          temperature: str | None,
          min_p: str | None):
     global g_executor
+
+    cuda_devices = '2,5'
 
     cuda_devices = cuda_devices.split(',')
     workers_per_gpu = int(workers_per_gpu)
