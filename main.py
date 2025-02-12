@@ -3,6 +3,8 @@ import multiprocessing
 import click
 import torch.cuda
 
+from indexed_pool_executor import IndexedProcessPoolExecutor
+
 if __name__ == '__main__':
     multiprocessing.set_start_method('spawn')
 
@@ -138,8 +140,8 @@ def main(cuda_devices: str | None,
     temperature = float(temperature)
     min_p = float(min_p)
 
-    g_executor = ProcessPoolExecutor(max_workers=len(cuda_devices) * workers_per_gpu, initializer=init_f,
-                                     initargs=(cuda_devices, max_new_tokens, temperature, min_p))
+    g_executor = IndexedProcessPoolExecutor(max_workers=len(cuda_devices) * workers_per_gpu, initializer=init_f,
+                                            initargs=(cuda_devices, workers_per_gpu, max_new_tokens, temperature, min_p))
 
     import uvicorn
 
