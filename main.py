@@ -55,11 +55,14 @@ def init_f(i: int,
 
     from unsloth import FastVisionModel
 
+    os.environ['CUDA_VISIBLE_DEVICES'] = f'{device_index}'
+    
+    print(f'Environment var: {os.environ["CUDA_VISIBLE_DEVICES"]}')
+
     model_path = "/model"
     g_trained_model, g_trained_tokenizer = FastVisionModel.from_pretrained(
         model_path,
-        use_gradient_checkpointing="unsloth",
-        device_map='auto'
+        use_gradient_checkpointing="unsloth"
     )
     g_trained_model = g_trained_model.to(g_device)
     FastVisionModel.for_inference(g_trained_model)
