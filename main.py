@@ -138,7 +138,7 @@ def main(cuda_devices: str | None,
     temperature = float(temperature)
     min_p = float(min_p)
 
-    g_executor = ProcessPoolExecutor(max_workers=len(g_cuda_devices) * workers_per_gpu, initializer=init_f,
+    g_executor = ProcessPoolExecutor(max_workers=len(cuda_devices) * workers_per_gpu, initializer=init_f,
                                      initargs=(cuda_devices, max_new_tokens, temperature, min_p))
 
     import uvicorn
