@@ -8,14 +8,13 @@ if __name__ == '__main__':
 
 import base64
 import io
-import time
 from concurrent.futures import ProcessPoolExecutor
 
 from PIL import Image
 from fastapi import FastAPI
 from pydantic import BaseModel
-# from transformers import TextStreamer
-# from unsloth import FastVisionModel
+from transformers import TextStreamer
+from unsloth import FastVisionModel
 
 import asyncio
 
