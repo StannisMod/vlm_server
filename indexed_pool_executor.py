@@ -20,7 +20,7 @@ class IndexedProcessPoolExecutor(ProcessPoolExecutor):
             # 'fork' mp_context worker dies, we'll be forking a new one when
             # we know a thread is running (self._executor_manager_thread).
             #assert self._safe_to_dynamically_spawn_children or not self._executor_manager_thread, 'https://github.com/python/cpython/issues/90622'
-            self._spawn_process()
+            self._spawn_process(process_count)
 
     def _launch_processes(self):
         # https://github.com/python/cpython/issues/90622
