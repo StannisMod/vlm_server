@@ -14,8 +14,8 @@ from concurrent.futures import ProcessPoolExecutor
 from PIL import Image
 from fastapi import FastAPI
 from pydantic import BaseModel
-from transformers import TextStreamer
-from unsloth import FastVisionModel
+# from transformers import TextStreamer
+# from unsloth import FastVisionModel
 
 import asyncio
 
@@ -105,6 +105,7 @@ g_workers_per_gpu: int | None = None
 g_max_new_tokens: int | None = None
 g_temperature: float | None = None
 g_min_p: float | None = None
+g_executor = None
 
 
 @click.command()
@@ -120,7 +121,7 @@ def main(cuda_devices: str | None,
          max_new_tokens: str | None,
          temperature: str | None,
          min_p: str | None):
-    global g_cuda_devices, g_max_new_tokens, g_temperature, g_min_p, g_workers_per_gpu
+    global g_cuda_devices, g_max_new_tokens, g_temperature, g_min_p, g_workers_per_gpu, g_executor
 
     g_cuda_devices = cuda_devices.split(',')
     g_workers_per_gpu = int(workers_per_gpu)
@@ -128,18 +129,17 @@ def main(cuda_devices: str | None,
     g_temperature = float(temperature)
     g_min_p = float(min_p)
 
-
-@app.post("/v1/chat/completions")
-async def chat_completions(payload: DataModel):
-    return await asyncio.get_running_loop().run_in_executor(executor, process_image, payload)
-
-
-if __name__ == "__main__":
-    main()
-
-    executor = ProcessPoolExecutor(max_workers=len(g_cuda_devices) * g_workers_per_gpu, initializer=init_f)
+    g_executor = ProcessPoolExecutor(max_workers=len(g_cuda_devices) * g_workers_per_gpu, initializer=init_f)
 
     import uvicorn
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
+
+@app.post("/v1/chat/completions")
+async def chat_completions(payload: DataModel):
+    return await asyncio.get_running_loop().run_in_executor(g_executor, process_image, payload)
+
+
+if __name__ == "__main__":
+    main()
