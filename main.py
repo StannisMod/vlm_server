@@ -45,7 +45,7 @@ def init_f(i: int,
     g_temperature = temperature
     g_min_p = min_p
 
-    # device_index = i // workers_per_gpu
+    # device_index = cuda_devices[i // workers_per_gpu]
     # g_device = torch.cuda.device(f'cuda')
 
     # os.environ['CUDA_VISIBLE_DEVICES'] = f'{device_index}' #  ','.join(list(map(str, range(torch.cuda.device_count()))))
