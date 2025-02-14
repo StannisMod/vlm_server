@@ -1,17 +1,15 @@
 import multiprocessing
-import os
+
+if __name__ == '__main__':
+    multiprocessing.set_start_method('spawn')
 
 import click
 import torch.cuda
 
 from indexed_pool_executor import IndexedProcessPoolExecutor
 
-if __name__ == '__main__':
-    multiprocessing.set_start_method('spawn')
-
 import base64
 import io
-from concurrent.futures import ProcessPoolExecutor
 
 from PIL import Image
 from fastapi import FastAPI
@@ -47,10 +45,10 @@ def init_f(i: int,
     g_temperature = temperature
     g_min_p = min_p
 
-    device_index = i // workers_per_gpu
-    g_device = torch.cuda.device(f'cuda')
+    # device_index = i // workers_per_gpu
+    # g_device = torch.cuda.device(f'cuda')
 
-    os.environ['CUDA_VISIBLE_DEVICES'] = f'{device_index}' #  ','.join(list(map(str, range(torch.cuda.device_count()))))
+    # os.environ['CUDA_VISIBLE_DEVICES'] = f'{device_index}' #  ','.join(list(map(str, range(torch.cuda.device_count()))))
     #torch.cuda.set_device()
 
     from unsloth import FastVisionModel
@@ -58,10 +56,9 @@ def init_f(i: int,
     model_path = "/model"
     g_trained_model, g_trained_tokenizer = FastVisionModel.from_pretrained(
         model_path,
-        use_gradient_checkpointing="unsloth",
-        device_map='auto'
+        use_gradient_checkpointing="unsloth"
     )
-    g_trained_model = g_trained_model.to(g_device)
+    # g_trained_model = g_trained_model.to(g_device)
     FastVisionModel.for_inference(g_trained_model)
 
 
@@ -83,7 +80,7 @@ def generate_answer(image, instruction, model, tokenizer, max_new_tokens=1024, t
         input_text,
         add_special_tokens=False,
         return_tensors="pt",
-    ).to(g_device)
+    ).to('cuda')
 
     class CapturingTextStreamer(TextStreamer):
         def __init__(self, tokenizer, skip_prompt=True):
@@ -129,7 +126,7 @@ g_executor = None
 @click.command()
 @click.option('--cuda_devices',
               default=','.join(list(map(str, range(torch.cuda.device_count())))),
-              help='Indices of GPUs that server should use. Workers should be spread over it')
+              help='DEPRECATED Indices of GPUs that server should use. Workers should be spread over it')
 @click.option('--workers_per_gpu', default=2, help='Number of workers that should run simultaneously on one GPU')
 @click.option('--max_new_tokens', default=1024, help='Model parameter broadcast to all workers')
 @click.option('--temperature', default=1.5, help='Model parameter broadcast to all workers')
@@ -141,15 +138,13 @@ def main(cuda_devices: str | None,
          min_p: str | None):
     global g_executor
 
-    cuda_devices = '2,5'
-
     cuda_devices = cuda_devices.split(',')
     workers_per_gpu = int(workers_per_gpu)
     max_new_tokens = int(max_new_tokens)
     temperature = float(temperature)
     min_p = float(min_p)
 
-    g_executor = IndexedProcessPoolExecutor(max_workers=len(cuda_devices) * workers_per_gpu, initializer=init_f,
+    g_executor = IndexedProcessPoolExecutor(max_workers=workers_per_gpu, initializer=init_f,
                                             initargs=(cuda_devices, workers_per_gpu, max_new_tokens, temperature, min_p))
 
     import uvicorn
